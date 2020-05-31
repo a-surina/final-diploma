@@ -1,0 +1,51 @@
+version: '3.7'
+services:
+  mysql:
+    image: mysql:8.0.19
+    ports:
+      - '3306:3306'
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=pass
+
+  postgresql:
+    image: postgres:12-alpine
+    ports:
+      - '3303:3303'
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=pass
+      - PGPORT=3303
+
+  gate-simulator:
+    build: ./artifacts/gate-simulator
+    image: node-app:1.0
+    depends_on:
+      - mysql
+      - postgresql
+    ports:
+      - '9999:9999'
+
+  app-mysql:
+    build: ./artifacts/app-mysql
+    image: app-mysql:1.0
+    depends_on:
+      - gate-simulator
+    ports:
+      - '8081:8081'
+
+  app-postgresql:
+    build: ./artifacts/app-postgresql
+    image: app-postgresql:1.0
+    depends_on:
+      - gate-simulator
+    ports:
+      - '8080:8080'
+
+
+
+
+
