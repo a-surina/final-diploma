@@ -5,8 +5,9 @@ import io.qameta.allure.selenide.AllureSelenide;
 import lombok.val;
 import org.junit.jupiter.api.*;
 import ru.netology.diploma.data.DataHelper;
-import ru.netology.diploma.data.MySqlUtils;
+import ru.netology.diploma.data.SqlUtils;
 import ru.netology.diploma.page.DashboardPage;
+import ru.netology.diploma.page.Form;
 
 import java.sql.SQLException;
 
@@ -14,12 +15,13 @@ import static com.codeborne.selenide.Selenide.open;
 
 class PayCreditMySQLTest {
 
-    private static MySqlUtils mySqlUtils;
+    private static SqlUtils sqlUtils;
     private DataHelper dataHelper = new DataHelper();
 
     @BeforeAll
     static void setUp() throws SQLException {
-        mySqlUtils = new MySqlUtils();
+        String urlMySQL = "jdbc:mysql://localhost:3306/app";
+        sqlUtils = new SqlUtils(urlMySQL);
         SelenideLogger.addListener("allure", new AllureSelenide());
     }
 
@@ -35,7 +37,7 @@ class PayCreditMySQLTest {
 
     @AfterEach
     void cleanUp() {
-        mySqlUtils.cleanAll();
+        sqlUtils.cleanAll();
     }
 
     @Test
@@ -46,9 +48,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInFuture().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.pay(cardNumber, month, year, owner, code);
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertSuccess();
-        Assertions.assertEquals("APPROVED", mySqlUtils.getLastPaymentStatus());
+        Assertions.assertEquals("APPROVED", sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -59,9 +63,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInFuture().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.pay(cardNumber, month, year, owner, code);
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertEquals("DECLINED", mySqlUtils.getLastPaymentStatus());
+        Assertions.assertEquals("DECLINED", sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -72,9 +78,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInFuture().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.pay(cardNumber, month, year, owner, code);
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertNull(mySqlUtils.getLastPaymentStatus());
+        Assertions.assertNull(sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -85,9 +93,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInThePast().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.pay(cardNumber, month, year, owner, code);
-        dashboardPage.assertErrorExpiredDate(1);
-        Assertions.assertNull(mySqlUtils.getLastPaymentStatus());
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
+        form.assertErrorExpiredDate(1);
+        Assertions.assertNull(sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -98,9 +108,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.expiredOneMonth().getYear();
         val owner = dataHelper.generateRandomCode();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.pay(cardNumber, month, year, owner, code);
-        dashboardPage.assertErrorExpiredDate(1);
-        Assertions.assertNull(mySqlUtils.getLastPaymentStatus());
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
+        form.assertErrorExpiredDate(1);
+        Assertions.assertNull(sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -111,10 +123,12 @@ class PayCreditMySQLTest {
         val year = dataHelper.invalidYearAndMonth().getYear();
         val owner = dataHelper.generateNameRussian();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.pay(cardNumber, month, year, owner, code);
-        dashboardPage.assertErrorInvalidDate(2);
-        dashboardPage.assertErrorInvalidFormat(1);
-        Assertions.assertNull(mySqlUtils.getLastPaymentStatus());
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
+        form.assertErrorInvalidDate(2);
+        form.assertErrorInvalidFormat(1);
+        Assertions.assertNull(sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -123,18 +137,22 @@ class PayCreditMySQLTest {
         val cardNumber = dataHelper.getCardNumber().getTooShort();
         val oneNumber = dataHelper.generateRandomSymbol().getNumber();
         val oneLetter = dataHelper.generateRandomSymbol().getLetter();
-        dashboardPage.pay(cardNumber, oneNumber, oneNumber, oneLetter, oneNumber);
-        dashboardPage.assertErrorInvalidFormat(5);
-        Assertions.assertNull(mySqlUtils.getLastPaymentStatus());
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(cardNumber, oneNumber, oneNumber, oneLetter, oneNumber);
+        form.assertErrorInvalidFormat(5);
+        Assertions.assertNull(sqlUtils.getLastPaymentStatus());
     }
 
     @Test
     void shouldPayEmptyFields() {
         val dashboardPage = new DashboardPage();
         val emptyField = dataHelper.getEmptyField();
-        dashboardPage.pay(emptyField, emptyField, emptyField, emptyField, emptyField);
-        dashboardPage.assertErrorRequiredField(5);
-        Assertions.assertNull(mySqlUtils.getLastPaymentStatus());
+        dashboardPage.pay();
+        val form = new Form();
+        form.fillIn(emptyField, emptyField, emptyField, emptyField, emptyField);
+        form.assertErrorRequiredField(5);
+        Assertions.assertNull(sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -145,9 +163,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInFuture().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.credit(cardNumber, month, year, owner, code);
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertSuccess();
-        Assertions.assertEquals("APPROVED", mySqlUtils.getLastCreditStatus());
+        Assertions.assertEquals("APPROVED", sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -158,9 +178,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInFuture().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.credit(cardNumber, month, year, owner, code);
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertEquals("DECLINED", mySqlUtils.getLastCreditStatus());
+        Assertions.assertEquals("DECLINED", sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -171,9 +193,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInFuture().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.credit(cardNumber, month, year, owner, code);
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertNull(mySqlUtils.getLastCreditStatus());
+        Assertions.assertNull(sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -184,9 +208,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.randomMonthAndYearInThePast().getYear();
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.credit(cardNumber, month, year, owner, code);
-        dashboardPage.assertErrorExpiredDate(1);
-        Assertions.assertNull(mySqlUtils.getLastCreditStatus());
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
+        form.assertErrorExpiredDate(1);
+        Assertions.assertNull(sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -197,9 +223,11 @@ class PayCreditMySQLTest {
         val year = dataHelper.expiredOneMonth().getYear();
         val owner = dataHelper.generateRandomCode();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.credit(cardNumber, month, year, owner, code);
-        dashboardPage.assertErrorExpiredDate(1);
-        Assertions.assertNull(mySqlUtils.getLastCreditStatus());
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
+        form.assertErrorExpiredDate(1);
+        Assertions.assertNull(sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -210,10 +238,12 @@ class PayCreditMySQLTest {
         val year = dataHelper.invalidYearAndMonth().getYear();
         val owner = dataHelper.generateNameRussian();
         val code = dataHelper.generateRandomCode();
-        dashboardPage.credit(cardNumber, month, year, owner, code);
-        dashboardPage.assertErrorInvalidDate(2);
-        dashboardPage.assertErrorInvalidFormat(1);
-        Assertions.assertNull(mySqlUtils.getLastCreditStatus());
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, month, year, owner, code);
+        form.assertErrorInvalidDate(2);
+        form.assertErrorInvalidFormat(1);
+        Assertions.assertNull(sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -222,17 +252,21 @@ class PayCreditMySQLTest {
         val cardNumber = dataHelper.getCardNumber().getTooShort();
         val oneNumber = dataHelper.generateRandomSymbol().getNumber();
         val oneLetter = dataHelper.generateRandomSymbol().getLetter();
-        dashboardPage.credit(cardNumber, oneNumber, oneNumber, oneLetter, oneNumber);
-        dashboardPage.assertErrorInvalidFormat(5);
-        Assertions.assertNull(mySqlUtils.getLastCreditStatus());
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(cardNumber, oneNumber, oneNumber, oneLetter, oneNumber);
+        form.assertErrorInvalidFormat(5);
+        Assertions.assertNull(sqlUtils.getLastCreditStatus());
     }
 
     @Test
     void shouldObtainCreditEmptyFields() {
         val dashboardPage = new DashboardPage();
         val emptyField = dataHelper.getEmptyField();
-        dashboardPage.credit(emptyField, emptyField, emptyField, emptyField, emptyField);
-        dashboardPage.assertErrorRequiredField(5);
-        Assertions.assertNull(mySqlUtils.getLastCreditStatus());
+        dashboardPage.credit();
+        val form = new Form();
+        form.fillIn(emptyField, emptyField, emptyField, emptyField, emptyField);
+        form.assertErrorRequiredField(5);
+        Assertions.assertNull(sqlUtils.getLastCreditStatus());
     }
 }

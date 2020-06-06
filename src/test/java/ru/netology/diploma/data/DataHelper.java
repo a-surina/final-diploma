@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class DataHelper {
+    private static final String[] myMonthList = new String[]{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
     private Faker faker;
     private LocalDate today = LocalDate.now();
     private DateTimeFormatter formatterYears = DateTimeFormatter.ofPattern("yy");
@@ -22,14 +23,12 @@ public class DataHelper {
     }
 
     public Date randomMonthAndYearInFuture() {
-        String[] myMonthList = new String[]{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
         int n = (int) Math.floor(Math.random() * myMonthList.length);
         LocalDate newDate = today.plusYears(2);
         return new Date(formatterYears.format(newDate), myMonthList[n]);
     }
 
     public Date randomMonthAndYearInThePast() {
-        String[] myMonthList = new String[]{"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
         int n = (int) Math.floor(Math.random() * myMonthList.length);
         LocalDate newDate = today.minusYears(2);
         return new Date(formatterYears.format(newDate), myMonthList[n]);
@@ -38,6 +37,8 @@ public class DataHelper {
     public Date invalidYearAndMonth() {
         Random random = new Random();
         return new Date(Integer.toString(35 + random.nextInt(74)), Integer.toString(13 + random.nextInt(86)));
+//   Рандомное число от 35 до 99 для года и от 13 до 99 для месяца.
+//   И то, и дугое будет восприниматься как некорректное: не бывает 13-го месяца, а 35 и 99 года слишком далеко либо в прошлом, либо в будущем.
     }
 
     public Date expiredOneMonth() {

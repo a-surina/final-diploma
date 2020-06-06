@@ -7,16 +7,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class PostgreSQLUtils {
+public class SqlUtils {
     private final PreparedStatement statusPaymentStmt;
     private final PreparedStatement statusCreditStmt;
     private final PreparedStatement cleanOrdersStmt;
     private final PreparedStatement cleanPaymentsStmt;
     private final PreparedStatement cleanCreditsStmt;
 
-    public PostgreSQLUtils() throws SQLException {
+    public SqlUtils(String url) throws SQLException {
         Connection conn = DriverManager.getConnection(
-                "jdbc:postgresql://localhost:3303/app", "app", "pass"
+                url, "app", "pass"
         );
 
         val statusPayment = "SELECT status FROM payment_entity JOIN order_entity ON payment_entity.transaction_id = order_entity.payment_id  ORDER BY order_entity.created DESC LIMIT 1";
