@@ -3,12 +3,13 @@ package ru.netology.diploma.page;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
+import java.lang.String;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 
-public class Form {
+public class CreditPaymentDataForm {
 
     private SelenideElement form = $(By.tagName("form"));
 
@@ -25,7 +26,7 @@ public class Form {
     private ElementsCollection formErrorInvalidDate = $$(withText("Неверно указан срок действия карты"));
     private ElementsCollection formErrorExpiredDate = $$(withText("Истёк срок действия карты"));
 
-    public Form() {
+    public CreditPaymentDataForm() {
         form.shouldBe(visible);
     }
 

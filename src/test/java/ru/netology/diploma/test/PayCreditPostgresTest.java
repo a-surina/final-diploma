@@ -7,7 +7,8 @@ import org.junit.jupiter.api.*;
 import ru.netology.diploma.data.DataHelper;
 import ru.netology.diploma.data.SqlUtils;
 import ru.netology.diploma.page.DashboardPage;
-import ru.netology.diploma.page.Form;
+import ru.netology.diploma.page.CreditPaymentDataForm;
+import java.lang.String;
 
 import java.sql.SQLException;
 
@@ -17,6 +18,8 @@ class PayCreditPostgresTest {
 
     private static SqlUtils sqlUtils;
     private DataHelper dataHelper = new DataHelper();
+    private static String approved = "APPROVED";
+    private static String declined = "DECLINED";
 
     @BeforeAll
     static void setUp() throws SQLException {
@@ -49,10 +52,10 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertSuccess();
-        Assertions.assertEquals("APPROVED", sqlUtils.getLastPaymentStatus());
+        Assertions.assertEquals(approved, sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -64,10 +67,10 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertEquals("DECLINED", sqlUtils.getLastPaymentStatus());
+        Assertions.assertEquals(declined, sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -79,7 +82,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
         Assertions.assertNull(sqlUtils.getLastPaymentStatus());
@@ -94,7 +97,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         form.assertErrorExpiredDate(1);
         Assertions.assertNull(sqlUtils.getLastPaymentStatus());
@@ -109,7 +112,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateRandomCode();
         val code = dataHelper.generateRandomCode();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         form.assertErrorExpiredDate(1);
         Assertions.assertNull(sqlUtils.getLastPaymentStatus());
@@ -124,7 +127,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateNameRussian();
         val code = dataHelper.generateRandomCode();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         form.assertErrorInvalidDate(2);
         form.assertErrorInvalidFormat(1);
@@ -138,7 +141,7 @@ class PayCreditPostgresTest {
         val oneNumber = dataHelper.generateRandomSymbol().getNumber();
         val oneLetter = dataHelper.generateRandomSymbol().getLetter();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, oneNumber, oneNumber, oneLetter, oneNumber);
         form.assertErrorInvalidFormat(5);
         Assertions.assertNull(sqlUtils.getLastPaymentStatus());
@@ -149,7 +152,7 @@ class PayCreditPostgresTest {
         val dashboardPage = new DashboardPage();
         val emptyField = dataHelper.getEmptyField();
         dashboardPage.pay();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(emptyField, emptyField, emptyField, emptyField, emptyField);
         form.assertErrorRequiredField(5);
         Assertions.assertNull(sqlUtils.getLastPaymentStatus());
@@ -164,10 +167,10 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertSuccess();
-        Assertions.assertEquals("APPROVED", sqlUtils.getLastCreditStatus());
+        Assertions.assertEquals(approved, sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -179,10 +182,10 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertEquals("DECLINED", sqlUtils.getLastCreditStatus());
+        Assertions.assertEquals(declined, sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -194,7 +197,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
         Assertions.assertNull(sqlUtils.getLastCreditStatus());
@@ -209,7 +212,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateName();
         val code = dataHelper.generateRandomCode();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         form.assertErrorExpiredDate(1);
         Assertions.assertNull(sqlUtils.getLastCreditStatus());
@@ -224,7 +227,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateRandomCode();
         val code = dataHelper.generateRandomCode();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         form.assertErrorExpiredDate(1);
         Assertions.assertNull(sqlUtils.getLastCreditStatus());
@@ -239,7 +242,7 @@ class PayCreditPostgresTest {
         val owner = dataHelper.generateNameRussian();
         val code = dataHelper.generateRandomCode();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         form.assertErrorInvalidDate(2);
         form.assertErrorInvalidFormat(1);
@@ -253,7 +256,7 @@ class PayCreditPostgresTest {
         val oneNumber = dataHelper.generateRandomSymbol().getNumber();
         val oneLetter = dataHelper.generateRandomSymbol().getLetter();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, oneNumber, oneNumber, oneLetter, oneNumber);
         form.assertErrorInvalidFormat(5);
         Assertions.assertNull(sqlUtils.getLastCreditStatus());
@@ -264,7 +267,7 @@ class PayCreditPostgresTest {
         val dashboardPage = new DashboardPage();
         val emptyField = dataHelper.getEmptyField();
         dashboardPage.credit();
-        val form = new Form();
+        val form = new CreditPaymentDataForm();
         form.fillIn(emptyField, emptyField, emptyField, emptyField, emptyField);
         form.assertErrorRequiredField(5);
         Assertions.assertNull(sqlUtils.getLastCreditStatus());

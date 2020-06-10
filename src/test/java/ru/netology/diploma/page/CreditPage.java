@@ -12,6 +12,6 @@ public class CreditPage {
 
     public CreditPage() {
         heading.shouldBe(visible);
-        Form form = new Form();
+        CreditPaymentDataForm creditPaymentDataForm = new CreditPaymentDataForm();
     }
 }
