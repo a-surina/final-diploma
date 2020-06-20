@@ -18,8 +18,8 @@ class PayCreditMySQLTest {
 
     private static SqlUtils sqlUtils;
     private DataHelper dataHelper = new DataHelper();
-    private static String approved = "APPROVED";
-    private static String declined = "DECLINED";
+    private final static String APPROVED = "APPROVED";
+    private final static String DECLINED = "DECLINED";
 
     @BeforeAll
     static void setUp() throws SQLException {
@@ -55,7 +55,7 @@ class PayCreditMySQLTest {
         val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertSuccess();
-        Assertions.assertEquals(approved, sqlUtils.getLastPaymentStatus());
+        Assertions.assertEquals(APPROVED, sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -70,7 +70,7 @@ class PayCreditMySQLTest {
         val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertEquals(declined, sqlUtils.getLastPaymentStatus());
+        Assertions.assertEquals(DECLINED, sqlUtils.getLastPaymentStatus());
     }
 
     @Test
@@ -170,7 +170,7 @@ class PayCreditMySQLTest {
         val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertSuccess();
-        Assertions.assertEquals(approved, sqlUtils.getLastCreditStatus());
+        Assertions.assertEquals(APPROVED, sqlUtils.getLastCreditStatus());
     }
 
     @Test
@@ -185,7 +185,7 @@ class PayCreditMySQLTest {
         val form = new CreditPaymentDataForm();
         form.fillIn(cardNumber, month, year, owner, code);
         dashboardPage.assertError();
-        Assertions.assertEquals(declined, sqlUtils.getLastCreditStatus());
+        Assertions.assertEquals(DECLINED, sqlUtils.getLastCreditStatus());
     }
 
     @Test
